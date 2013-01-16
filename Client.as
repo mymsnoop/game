@@ -2,6 +2,7 @@
 	
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+	import flash.geom.Matrix;
 	import flash.net.*;
 	import flash.events.*;
 	import com.greensock.TweenMax;
@@ -330,8 +331,10 @@
 							square.graphics.beginFill(0x0000FF);
 							square.graphics.drawRect(0,0,crudeData.data.walls[i][2],crudeData.data.walls[i][3]);
 							square.graphics.endFill();
-							square.x = crudeData.data.walls[i][0];
-							square.y = crudeData.data.walls[i][1];
+							var hyp = Math.sqrt(Math.pow(crudeData.data.walls[i][2], 2) + Math.pow(crudeData.data.walls[i][3], 2)) / 2;
+							var tanval = crudeData.data.walls[i][3] / crudeData.data.walls[i][2];
+							square.x = crudeData.data.walls[i][0]-hyp*Math.cos(Math.atan(tanval)+crudeData.data.walls[i][4]);
+							square.y = crudeData.data.walls[i][1]-hyp*Math.sin(Math.atan(tanval)+crudeData.data.walls[i][4]);
 							square.rotation= crudeData.data.walls[i][4];
 						}
 						
