@@ -11,6 +11,7 @@
 	import flash.utils.Timer;
 	import flash.utils.setTimeout;
 	import flash.display.Graphics;
+	import flash.text.*;
 	
 	TweenPlugin.activate([BlurFilterPlugin]);
 	/**
@@ -32,6 +33,20 @@
 		public var roomId = -1;
 		public var menu:Menu = new Menu();
 		public var socket:XMLSocket;
+		
+		public var roomcell_startX:Number = 250;
+		public var roomcell_startY:Number = 40;
+		public var roomcell_width:Number = 180;
+		public var roomcell_height:Number = 120;
+		public var roomcell_xGap:Number = 40;
+		public var roomcell_yGap:Number = 28;
+		
+		public var info_startX:Number = 5;
+		public var info_startY:Number = 15;
+		public var info_width:Number = 65;
+		public var info_height:Number = 15;
+		public var info_xGap:Number = 20;
+		public var info_yGap:Number = 15;
 		
 		public function Client() {
 			trace(this);
@@ -529,6 +544,46 @@
 					}else if (infoVar == "rmList")
 					{	trace("got roomList message..");
 						trace(crudeData);
+						if (this.getChildByName("lobby") != null)
+						{
+							this.removeChild(this.getChildByName("lobby"));
+						}
+						var lobby:MovieClip = new MovieClip();
+						lobby.name = "lobby";
+						for (var i = 0; i < crudeData.rooms.length; i++)
+						{
+							var square:Sprite = new Sprite();
+							square.graphics.beginFill(0xCCCCCC);
+							square.graphics.drawRect(0,0,180,120);
+							square.graphics.endFill();
+							square.x = roomcell_startX+(i%2)*(roomcell_width+roomcell_xGap);
+							square.y = roomcell_startY + int(i / 2) * (roomcell_height + roomcell_yGap);
+							var title:TextField = new TextField();
+							title.text = "Arena-" + crudeData.rooms[i].roomId;
+							title.x = 60;
+							title.y = 5;
+							square.addChild(title);
+							for (var j = 0; j < crudeData.rooms[i].players.length; j++)
+							{
+								var info:TextField = new TextField();
+								info.text = crudeData.rooms[i].players[j].username;
+								info.x = info_startX+(j%2)*(info_width+info_xGap);
+								info.y = info_startY + int(j / 2) * (info_height + info_yGap);
+								square.addChild(info);
+							}
+							lobby.addChild(square);
+							
+							if (crudeData.rooms[i].players.length<6) {
+								var joinbut:JoinArena = new JoinArena();
+								joinbut.x = 20;
+								joinbut.y = 80;
+								joinbut.name = crudeData.rooms[i].roomId;
+								square.addChild(joinbut);
+								joinbut.addEventListener(MouseEvent.CLICK,joinArena,false,0,true);
+							}
+							
+						}
+						this.addChild(lobby);
 					}
 				}else {
 					menu.visible = true;
@@ -537,6 +592,19 @@
 					
 					
 				}
+			}
+			
+			function joinArena(evt:MouseEvent) {
+				if (this.getChildByName("lobby") != null)
+				{
+					this.removeChild(this.getChildByName("lobby"));
+				}
+				trace(evt.target.name);
+				roomId = evt.target.name;
+				menu.visible = false;
+				var obj:Object={};
+				obj["info"] = "join";
+				sendSocketMessage(obj);
 			}
 			
 			function createGame(evt:MouseEvent) {
