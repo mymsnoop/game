@@ -2,6 +2,8 @@
 	
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+	import flash.filters.DisplacementMapFilter;
+	import flash.geom.Matrix;
 	import flash.net.*;
 	import flash.events.*;
 	import com.greensock.TweenMax;
@@ -59,7 +61,7 @@
 			function doConnect(evt:MouseEvent):void
 			{
 				//stage.removeEventListener(MouseEvent.CLICK, doConnect);
-				socket = new XMLSocket("127.0.0.1", 9001);
+				socket = new XMLSocket("25.89.188.115", 9001);
 				socket.addEventListener(Event.CONNECT, onConnect);
 				socket.addEventListener(IOErrorEvent.IO_ERROR, onError);
 				//TweenPlugin.activate([BlurFilterPlugin]);
@@ -320,31 +322,25 @@
 						}
 						
 					}else if (infoVar == "map")
-					{
+					{	var map:Map = new Map();
+						this.addChild(map);
 						trace("got map message");
 						for (var i = 0; i < crudeData.data.walls.length; i++)
-						{
-							var square:Sprite = new Sprite();
-							addChild(square);
-							square.graphics.lineStyle(3,0x00ff00);
-							square.graphics.beginFill(0x0000FF);
-							square.graphics.drawRect(0,0,crudeData.data.walls[i][2],crudeData.data.walls[i][3]);
-							square.graphics.endFill();
-							square.x = crudeData.data.walls[i][0];
-							square.y = crudeData.data.walls[i][1];
-							square.rotation= crudeData.data.walls[i][4];
+						{	
+							var wall:Wall = new Wall();
+							wall.x = crudeData.data.walls[i][0];
+							wall.y = crudeData.data.walls[i][1];
+							wall.rotation = crudeData.data.walls[i][2];
+							this.addChild(wall);
 						}
 						
 						for (var i = 0; i < crudeData.data.pillars.length; i++)
-						{
-							var square:Sprite = new Sprite();
-							addChild(square);
-							square.graphics.lineStyle(3,0x00ff00);
-							square.graphics.beginFill(0x0000FF);
-							square.graphics.drawCircle(0, 0, crudeData.data.pillars[i][2]);
-							square.graphics.endFill();
-							square.x = crudeData.data.pillars[i][0];
-							square.y = crudeData.data.pillars[i][1];
+						{	
+							var pillar:Pillar = new Pillar();
+							pillar.x = crudeData.data.pillars[i][0];
+							pillar.y = crudeData.data.pillars[i][1];
+							this.addChild(pillar);
+							
 						}
 							
 					}else if (infoVar == "hp") 

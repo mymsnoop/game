@@ -42,7 +42,7 @@
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
 
     <script type="text/javascript">
-    swfobject.embedSWF("socketClient.swf", "myContent", "720", "480", "9.0.0");
+    swfobject.embedSWF("socketClient.swf", "myContent", "760", "640", "9.0.0");
     </script>
 </head>
 <body>
