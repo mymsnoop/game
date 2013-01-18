@@ -36,6 +36,7 @@
 		public var menu:Menu = new Menu();
 		public var socket:XMLSocket;
 		
+		////////////////////For roomcell dimensions and layout /////////////////////////////
 		public var roomcell_startX:Number = 250;
 		public var roomcell_startY:Number = 40;
 		public var roomcell_width:Number = 180;
@@ -43,12 +44,23 @@
 		public var roomcell_xGap:Number = 40;
 		public var roomcell_yGap:Number = 28;
 		
+		
+		////////////////////For information dimensions and layout /////////////////////////////
 		public var info_startX:Number = 5;
 		public var info_startY:Number = 15;
 		public var info_width:Number = 65;
 		public var info_height:Number = 15;
 		public var info_xGap:Number = 20;
 		public var info_yGap:Number = 15;
+		
+		/////////////////////////////Skillset and buy Bounty///////////////////////////////
+		public var skillBounty:Array = new Array(10, 10, 10, 10, 10);
+		public var spellsSkilled:Array = new Array();
+		public var bounty:Number = 10;
+		public var skillBox:MovieClip = new MovieClip();
+		public var spellName:Array = new Array("cannon", "homing", "teleport", "invisible", "throttle");
+		public var keyName:Array = new Array("Q", "W", "E", "R");
+		
 		
 		public function Client() {
 			trace(this);
@@ -57,11 +69,11 @@
 			doConnect(null);
 			//stage.addEventListener(MouseEvent.CLICK, doConnect);
 		}
-			
+		
 			function doConnect(evt:MouseEvent):void
 			{
 				//stage.removeEventListener(MouseEvent.CLICK, doConnect);
-				socket = new XMLSocket("25.89.188.115", 9001);
+				socket = new XMLSocket("127.0.0.1", 9001);
 				socket.addEventListener(Event.CONNECT, onConnect);
 				socket.addEventListener(IOErrorEvent.IO_ERROR, onError);
 				//TweenPlugin.activate([BlurFilterPlugin]);
@@ -323,6 +335,8 @@
 						
 					}else if (infoVar == "map")
 					{	var map:Map = new Map();
+						map.x = 0;
+						map.y = 0;
 						this.addChild(map);
 						trace("got map message");
 						for (var i = 0; i < crudeData.data.walls.length; i++)
@@ -387,6 +401,9 @@
 						players[crudeData.pid].ms = crudeData.ms;
 						players[crudeData.pid].hp = crudeData.hp;
 						players[crudeData.pid].regen = crudeData.regen;
+						skillBox.x = 230;
+						skillBox.y = 640;
+						this.addChild(skillBox);
 						
 					}else if (infoVar == "left")
 					{
@@ -531,12 +548,48 @@
 						
 						
 					}else if (infoVar == "joinOk")
-					{	trace("got roomjoin message..");
+					{	
+						trace("got roomjoin message..");
 						menu.visible = false;
 						roomId = crudeData.roomId;
 						var obj:Object={};
 						obj["info"] = "join";
 						sendSocketMessage(obj);
+						
+					}else if (infoVar == "spellSelect")
+					{	
+						trace("got spellSelect message..");
+						var skillmenu:SelectionBox = new SelectionBox();
+						skillmenu.name = "skillmenu";
+						this.x = 230;
+						this.y = 580;
+						this.addChild(skillmenu);						
+						
+						for (var i = 0; i < skillBounty.length; i++)
+						{
+							if (spellsSkilled.indexOf(i)>-1)
+							{
+								trace("spell already skilled up");
+								trace(MovieClip(skillmenu).getChildByName(spellName[i]));
+								//MovieClip(skillmenu).getChildByName(spellName[i]).info.text = "Used Up!";
+								
+								
+							}else if (skillBounty[i]>bounty) {
+								
+								trace("not enough bounty");
+								trace(MovieClip(skillmenu).getChildByName(spellName[i]));
+								//MovieClip(skillmenu).getChildByName(spellName[i]).info.text = "Cannot Buy!";
+								
+							}else {
+								trace("Available");
+								trace(MovieClip(skillmenu).getChildByName(spellName[i]));
+								MovieClip(MovieClip(skillmenu).getChildByName(spellName[i])).info.text="Available!";
+								//MovieClip(skillmenu).getChildByName(spellName[i]).addEventListener(MouseEvent.CLICK, selectSpell, false, 0, true);
+								//MovieClip(skillmenu).getChildByName(spellName[i]).info.text = "Available!";
+							}
+						}
+						
+						
 					}else if (infoVar == "rmList")
 					{	trace("got roomList message..");
 						trace(crudeData);
@@ -588,6 +641,100 @@
 					
 					
 				}
+			}
+			
+			function selectSpell(evt:MouseEvent) {
+				var selected = evt.target.name;
+				if (selected != null)
+				{
+					var obj = { };
+					obj["info"] = "spellSelected";
+					obj["pid"] = myIndex;
+					obj["selected"] = -1;
+					if (selected == "cannon") {
+						obj["selected"] = 0;
+					}else if (selected == "homing") {
+						obj["selected"] = 1;
+					}else if (selected == "teleport") {
+						obj["selected"] = 2;
+					}else if (selected == "invisible") {
+						obj["selected"]= 3;
+					}else if (selected == "throttle") {
+						obj["selected"]= 4;
+					}
+					sendSocketMessage(obj);
+					
+					if (this.getChildByName("skillmenu") !=null) {
+						this.removeChild(this.getChildByName("skillmenu"));
+						var mc:Spell = new Spell();
+						mc.name = String(spellsSkilled.length);
+						mc.key = keyName[spellsSkilled.length];
+						mc.spell.text = spellName[spellsSkilled.length];
+						mc.x = spellsSkilled.length * mc.width;
+						mc.addEventListener(MouseEvent.CLICK, cast, false, 0, true);
+						skillBox.addChild(mc);
+						spellsSkilled.push(selected);
+					}
+					
+				}
+			}
+			
+			function cast(evt:MouseEvent) {
+				var name = evt.target.name;
+				trace("spell cast is:" + name);
+				weapon = -1;
+				if (name == null)
+				{
+					
+				}else if (name == 0) {
+					weapon = 0;
+					MovieClip(players[myIndex].unit.muzzle).rotation = -MovieClip(players[myIndex].unit).rotation+(dirSin(myIndex,false)>=0?1:-1)*Math.acos(dirCos(myIndex,false))*180/Math.PI;
+				}else if (name==1) {
+					weapon = 1;
+					MovieClip(players[myIndex].unit.muzzle).rotation = -MovieClip(players[myIndex].unit).rotation+(dirSin(myIndex,false)>=0?1:-1)*Math.acos(dirCos(myIndex,false))*180/Math.PI;
+				}else if (name==2) {
+					weapon = 2;
+					MovieClip(players[myIndex].unit.muzzle).rotation = -MovieClip(players[myIndex].unit).rotation+(dirSin(myIndex,false)>=0?1:-1)*Math.acos(dirCos(myIndex,false))*180/Math.PI;
+				}else if (name==3) {
+					weapon = 3;
+					var obj:Object={};
+					obj["info"] = "ammo";
+					obj["type"] = weapon;
+					obj["pid"] = myIndex;
+					//obj["dir"] = { "cos":dirCos(myIndex, false), "sin":dirSin(myIndex, false) };
+					/*
+					MovieClip(players[myIndex].unit).rotation = (dirSin(myIndex)>=0?1:-1)*Math.acos(dirCos(myIndex))*180/Math.PI;
+					TweenMax.to(players[myIndex].unit, extrapolationTime, { x:players[myIndex].unit.x+SPEED*extrapolationTime*dirCos(myIndex), y:players[myIndex].unit.y+SPEED*extrapolationTime*dirSin(myIndex), ease:Linear.easeNone } );				
+					*/
+					trace(JSON.encode(obj));
+					sendSocketMessage(obj);
+					weapon = -1;
+					
+				}else if (name==4) {
+					weapon = 4;
+					var obj:Object={};
+					obj["info"] = "ammo";
+					obj["type"] = weapon;
+					obj["pid"] = myIndex;
+					//obj["dir"] = { "cos":dirCos(myIndex, false), "sin":dirSin(myIndex, false) };
+					/*
+					MovieClip(players[myIndex].unit).rotation = (dirSin(myIndex)>=0?1:-1)*Math.acos(dirCos(myIndex))*180/Math.PI;
+					TweenMax.to(players[myIndex].unit, extrapolationTime, { x:players[myIndex].unit.x+SPEED*extrapolationTime*dirCos(myIndex), y:players[myIndex].unit.y+SPEED*extrapolationTime*dirSin(myIndex), ease:Linear.easeNone } );				
+					*/
+					trace(JSON.encode(obj));
+					sendSocketMessage(obj);
+					weapon = -1;
+				}else {
+					weapon = -1;
+				}
+				
+				if ([0,1,2].indexOf(weapon) > -1)
+				{
+					crossHair.visible = true;
+				}else {
+					crossHair.visible = false;
+				}
+				
 			}
 			
 			function joinArena(evt:MouseEvent) {
