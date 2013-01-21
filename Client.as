@@ -36,6 +36,8 @@
 		public var menu:Menu = new Menu();
 		public var socket:XMLSocket;
 		
+		public var map;
+		
 		////////////////////For roomcell dimensions and layout /////////////////////////////
 		public var roomcell_startX:Number = 250;
 		public var roomcell_startY:Number = 40;
@@ -289,9 +291,12 @@
 						players[crudeData.pid] = setPlayer();
 						stage.addChild(players[crudeData.pid].unit);
 						MovieClip(players[crudeData.pid].unit).addEventListener(MouseEvent.CLICK, showInventory, false, 0, true);
-						stage.addEventListener(MouseEvent.CLICK, onClick, false, 0, true);
-						stage.addEventListener(MouseEvent.MOUSE_MOVE, onMove, false, 0, true);
-						stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeydown, false, 0, true);
+						map.addEventListener(MouseEvent.CLICK, onClick, false, 0, true);
+						map.addEventListener(MouseEvent.MOUSE_MOVE, onMove, false, 0, true);
+						map.addEventListener(KeyboardEvent.KEY_DOWN, onKeydown, false, 0, true);
+						skillBox.x = 230;
+						skillBox.y = 640;
+						this.addChild(skillBox);
 						players[crudeData.pid].unit.x = crudeData.position["x"]*SCALE;
 						players[crudeData.pid].unit.y = crudeData.position["y"] * SCALE;
 						players[crudeData.pid].unit.rotation = crudeData.angle;
@@ -334,9 +339,7 @@
 						}
 						
 					}else if (infoVar == "map")
-					{	var map:Map = new Map();
-						map.x = 0;
-						map.y = 0;
+					{	map = new Map();
 						this.addChild(map);
 						trace("got map message");
 						for (var i = 0; i < crudeData.data.walls.length; i++)
@@ -401,9 +404,6 @@
 						players[crudeData.pid].ms = crudeData.ms;
 						players[crudeData.pid].hp = crudeData.hp;
 						players[crudeData.pid].regen = crudeData.regen;
-						skillBox.x = 230;
-						skillBox.y = 640;
-						this.addChild(skillBox);
 						
 					}else if (infoVar == "left")
 					{
@@ -561,8 +561,8 @@
 						trace("got spellSelect message..");
 						var skillmenu:SelectionBox = new SelectionBox();
 						skillmenu.name = "skillmenu";
-						this.x = 230;
-						this.y = 580;
+						skillmenu.x = 230;
+						skillmenu.y = 580;
 						this.addChild(skillmenu);						
 						
 						for (var i = 0; i < skillBounty.length; i++)
@@ -570,22 +570,18 @@
 							if (spellsSkilled.indexOf(i)>-1)
 							{
 								trace("spell already skilled up");
-								trace(MovieClip(skillmenu).getChildByName(spellName[i]));
-								//MovieClip(skillmenu).getChildByName(spellName[i]).info.text = "Used Up!";
+								MovieClip(MovieClip(skillmenu).getChildByName(spellName[i])).info.text = "Used Up!";
 								
 								
 							}else if (skillBounty[i]>bounty) {
 								
 								trace("not enough bounty");
-								trace(MovieClip(skillmenu).getChildByName(spellName[i]));
-								//MovieClip(skillmenu).getChildByName(spellName[i]).info.text = "Cannot Buy!";
+								MovieClip(MovieClip(skillmenu).getChildByName(spellName[i])).info.text = "Cannot Buy!";
 								
 							}else {
 								trace("Available");
-								trace(MovieClip(skillmenu).getChildByName(spellName[i]));
-								MovieClip(MovieClip(skillmenu).getChildByName(spellName[i])).info.text="Available!";
-								//MovieClip(skillmenu).getChildByName(spellName[i]).addEventListener(MouseEvent.CLICK, selectSpell, false, 0, true);
-								//MovieClip(skillmenu).getChildByName(spellName[i]).info.text = "Available!";
+								MovieClip(skillmenu).getChildByName(spellName[i]).addEventListener(MouseEvent.CLICK, selectSpell, false, 0, true);
+								MovieClip(MovieClip(skillmenu).getChildByName(spellName[i])).info.text = "Available!";
 							}
 						}
 						
@@ -668,7 +664,7 @@
 						this.removeChild(this.getChildByName("skillmenu"));
 						var mc:Spell = new Spell();
 						mc.name = String(spellsSkilled.length);
-						mc.key = keyName[spellsSkilled.length];
+						mc.key.text = keyName[spellsSkilled.length];
 						mc.spell.text = spellName[spellsSkilled.length];
 						mc.x = spellsSkilled.length * mc.width;
 						mc.addEventListener(MouseEvent.CLICK, cast, false, 0, true);
