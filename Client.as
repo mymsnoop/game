@@ -63,6 +63,8 @@
 		public var spellName:Array = new Array("cannon", "homing", "teleport", "invisible", "throttle");
 		public var keyName:Array = new Array("Q", "W", "E", "R");
 		
+		public var spellUsed:Array = new Array(false,false,false,false,false);
+		
 		
 		public function Client() {
 			trace(this);
@@ -722,6 +724,10 @@
 					weapon = -1;
 				}else {
 					weapon = -1;
+				}
+				
+				if ([0,1,2,3,4].indexOf(name)>-1) {
+					spellUsed[name] = true;
 				}
 				
 				if ([0,1,2].indexOf(weapon) > -1)
