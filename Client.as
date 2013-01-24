@@ -131,6 +131,8 @@
 			}
 			
 			function onClick(evt:MouseEvent) {
+				trace(evt.target);
+				trace(evt.currentTarget);
 				if (weapon == -1)
 				{	
 					lastClicked.x = mouseX;
@@ -256,7 +258,7 @@
 					weapon = -1;
 					
 				}else if (code==65||code == 97) {
-					weapon = 4;
+					weapon = 5;
 					var obj:Object={};
 					obj["info"] = "ammo";
 					obj["type"] = weapon;
@@ -293,9 +295,9 @@
 						players[crudeData.pid] = setPlayer();
 						stage.addChild(players[crudeData.pid].unit);
 						MovieClip(players[crudeData.pid].unit).addEventListener(MouseEvent.CLICK, showInventory, false, 0, true);
-						map.addEventListener(MouseEvent.CLICK, onClick, false, 0, true);
-						map.addEventListener(MouseEvent.MOUSE_MOVE, onMove, false, 0, true);
-						map.addEventListener(KeyboardEvent.KEY_DOWN, onKeydown, false, 0, true);
+						stage.addEventListener(MouseEvent.CLICK, onClick, false, 0, true);
+						stage.addEventListener(MouseEvent.MOUSE_MOVE, onMove, false, 0, true);
+						stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeydown, false, 0, true);
 						skillBox.x = 230;
 						skillBox.y = 640;
 						this.addChild(skillBox);
@@ -642,7 +644,8 @@
 			}
 			
 			function selectSpell(evt:MouseEvent) {
-				var selected = evt.target.name;
+				var selected = evt.currentTarget.name;
+				trace(selected);
 				if (selected != null)
 				{
 					var obj = { };
@@ -665,9 +668,9 @@
 					if (this.getChildByName("skillmenu") !=null) {
 						this.removeChild(this.getChildByName("skillmenu"));
 						var mc:Spell = new Spell();
-						mc.name = String(spellsSkilled.length);
+						mc.name = obj["selected"];
 						mc.key.text = keyName[spellsSkilled.length];
-						mc.spell.text = spellName[spellsSkilled.length];
+						mc.spell.text = spellName[obj["selected"]];
 						mc.x = spellsSkilled.length * mc.width;
 						mc.addEventListener(MouseEvent.CLICK, cast, false, 0, true);
 						skillBox.addChild(mc);
@@ -678,7 +681,7 @@
 			}
 			
 			function cast(evt:MouseEvent) {
-				var name = evt.target.name;
+				var name = evt.currentTarget.name;
 				trace("spell cast is:" + name);
 				weapon = -1;
 				if (name == null)
