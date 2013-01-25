@@ -461,12 +461,7 @@
 					}else if (infoVar == "tanksHurt")
 					{
 						trace("got tanksHurt message");
-						/*
-							for (var i = 0; i < crudeData.data.length; i++)
-							{	
-								removeAmmo(ammo[crudeData.data[i]].unit);
-							}
-							*/
+						
 							
 					}else if (infoVar == "teleportStarted") 
 					{
