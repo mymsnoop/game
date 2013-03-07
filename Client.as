@@ -417,15 +417,15 @@
 							
 					}else if (infoVar == "ammo")
 					{
-						trace("got ammo message");
+						//trace("got ammo message");
 						for (var z = 0; z < crudeData.data.length; z++)
 						{	var curr = crudeData.data[z];
-							trace(curr.type);
+							//trace(curr.type);
 							
 							if (ammo[curr.pid] != null)
-							{	trace("this ammo found");
+							{	//trace("this ammo found");
 								if (stage.contains(ammo[curr.pid].unit) ==false)
-								{	trace("this ammo wasnt added");
+								{	//trace("this ammo wasnt added");
 									ammo[curr.pid] = setAmmo(curr.type);
 									stage.addChild(ammo[curr.pid].unit);
 									if(curr.type==0)
@@ -434,7 +434,7 @@
 										ammo[curr.pid].unit.addEventListener(Event.ENTER_FRAME, doTrail);
 								}
 							}else {
-								trace("this ammo wasnt found");
+								//trace("this ammo wasnt found");
 								ammo[curr.pid] = setAmmo(curr.type);
 								stage.addChild(ammo[curr.pid].unit);
 								if(curr.type==0)
@@ -461,7 +461,7 @@
 					}else if (infoVar == "tanksHurt")
 					{
 						trace("got tanksHurt message");
-						
+						MovieClip(players[crudeData.pid].unit.hp.hp_alive).scaleX = crudeData.hp / 400;						
 							
 					}else if (infoVar == "teleportStarted") 
 					{
@@ -792,8 +792,8 @@
 			
 			function rotateCannon(evt:Event) {
 				var mc = evt.target;
-				trace(mc);
-				trace(mc.rotation);
+				//trace(mc);
+				//trace(mc.rotation);
 				if (mc != null) {
 					mc.rotation += 20;
 				}
@@ -850,34 +850,35 @@
 					_loc3.y =   Math.random()*explosionDistance - explosionDistance / 2;
 					_loc1.x =  Math.random()*explosionDistance - explosionDistance / 2;
 					_loc1.y =  Math.random() * explosionDistance - explosionDistance / 2;
-					trace("clip1 x::" + _loc1.x);
+					/*trace("clip1 x::" + _loc1.x);
 					trace("clip2 x::" + _loc3.x);
 					trace("clip1 y::" + _loc1.y);
-					trace("clip2 y::" + _loc3.y);
+					trace("clip2 y::" + _loc3.y);*/
 					var _loc5 = (explosionSize*Math.random() + explosionSize / 2)/100;
 					_loc3.scaleX = _loc5;
-					_loc3.scaleY = _loc5;
+					_loc3.scaleY = _loc5;/*
 					trace("clip2 scalex x::" + _loc3.scaleX);
-					trace("clip2 scalex y::" + _loc3.scaleY);
+					trace("clip2 scalex y::" + _loc3.scaleY);*/
 					_loc5 = (explosionSize*Math.random() + explosionSize / 2)/100;
 					_loc1.scaleX = _loc5;
-					_loc1.scaleY = _loc5;
+					_loc1.scaleY = _loc5;/*
 					trace("clip1 scalex x::" + _loc1.scaleX);
-					trace("clip1 scalex y::" + _loc1.scaleY);
+					trace("clip1 scalex y::" + _loc1.scaleY);*/
 					_loc1.rotation = 359 * Math.random();
-					trace("clip1 scalex x::" + _loc1.rotation);
+					//trace("clip1 scalex x::" + _loc1.rotation);
 					_loc3.alpha = explosionAlpha*Math.random() + explosionAlpha / 4;
 					_loc1.alpha = explosionAlpha * Math.random() + explosionAlpha / 4;
+					/*
 					trace("clip1 alpha ::" + _loc1.alpha);
-					trace("clip2 alpha ::" + _loc3.alpha);
+					trace("clip2 alpha ::" + _loc3.alpha);*/
 				} // end of for
-				trace(stage.getChildByName(pid));
+				//trace(stage.getChildByName(pid));
 				setTimeout(function() { stage.removeChild(stage.getChildByName(pid)); }, 666);
 			} // End of the function
 			
 			function removeAmmo(id:Number) {
 				
-				//addExplosion(id);
+				addExplosion(id);
 				ammo[id].unit.removeEventListener(Event.ENTER_FRAME, rotateCannon);
 				ammo[id].unit.removeEventListener(Event.ENTER_FRAME, doTrail);
 				TweenMax.killTweensOf(ammo[id].unit);
